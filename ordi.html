@@ -1,25 +1,167 @@
-<input id="code" placeholder="Scanner le carton">
-<button onclick="save()">Enregistrer</button>
-<p id="msg"></p>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enregistrement carton</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: #ffffff;
+      padding: 24px 22px 26px;
+      border-radius: 16px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+      max-width: 420px;
+      width: 92%;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 0;
+      margin-bottom: 18px;
+      font-size: 24px;
+      color: #222;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 15px;
+      color: #555;
+      text-align: left;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      outline: none;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: #0066ff;
+      box-shadow: 0 0 0 2px rgba(0,102,255,0.15);
+    }
+
+    button {
+      margin-top: 16px;
+      width: 100%;
+      padding: 11px 0;
+      font-size: 17px;
+      font-weight: 600;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      background: #0066ff;
+      color: white;
+      box-shadow: 0 4px 10px rgba(0,102,255,0.35);
+      transition: transform 0.1s, box-shadow 0.1s, background 0.2s;
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 6px rgba(0,102,255,0.35);
+      background: #0053d1;
+    }
+
+    #status {
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      display: none;
+    }
+
+    .ok {
+      background: #d4f8d4;
+      color: #0f7a0f;
+      border: 2px solid #0f7a0f;
+    }
+
+    .exists {
+      background: #fff3cd;
+      color: #856404;
+      border: 2px solid #856404;
+    }
+
+    .error {
+      background: #ffd4d4;
+      color: #a30000;
+      border: 2px solid #a30000;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Enregistrer un carton</h1>
+
+  <label for="code">Code du carton</label>
+  <input type="text" id="code" placeholder="Saisir ou scanner le code barre">
+
+  <button onclick="envoyer()">Enregistrer</button>
+
+  <div id="status"></div>
+</div>
 
 <script>
-const API = "TON_URL_API";
+const API_URL = "https://script.google.com/macros/s/AKfycbyut5vlo6NFGQ1-82qngTAYm62311uk4FZVUXfXXLmxwJy8guT78sClN3Cb6_FNoHMu/exec";
 
-function save() {
-  const code = document.getElementById("code").value;
+function afficher(message, type) {
+  const box = document.getElementById("status");
+  box.style.display = "block";
+  box.textContent = message;
+  box.className = type;
+}
 
-  fetch(API + "?register=" + code)
-    .then(r => r.text())
-    .then(status => {
-      const msg = document.getElementById("msg");
+function envoyer() {
+  const input = document.getElementById("code");
+  const code = input.value.trim();
 
-      if (status === "ok") {
-        msg.textContent = "Carton enregistré";
-        msg.style.color = "green";
-      } else {
-        msg.textContent = "Carton déjà vendu !";
-        msg.style.color = "red";
-      }
-    });
+  if (!code) {
+    afficher("Veuillez saisir un code.", "error");
+    return;
+  }
+
+  fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({ code })
+  })
+  .then(r => r.json())
+  .then(data => {
+    // On suppose que le script renvoie {status: "new"} ou {status: "exists"}
+    if (data.status === "new") {
+      afficher("✔ Carton enregistré dans Google Sheets.", "ok");
+      navigator.vibrate?.(120);
+      input.value = "";
+    } else if (data.status === "exists") {
+      afficher("⚠ Ce carton a déjà été saisi, il n’est pas enregistré à nouveau.", "exists");
+      navigator.vibrate?.([120, 80, 120]);
+    } else {
+      afficher("Réponse inattendue du serveur.", "error");
+    }
+  })
+  .catch(() => {
+    afficher("Erreur lors de l’envoi vers Google Sheets.", "error");
+  });
 }
 </script>
+
+</body>
+</html>
