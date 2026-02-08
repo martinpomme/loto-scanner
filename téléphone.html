@@ -1,13 +1,67 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vérification Carton</title>
   <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 20px;
+      font-size: 26px;
+      color: #333;
+    }
+
+    #reader {
+      width: 90%;
+      max-width: 350px;
+      margin: 20px auto;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    #result {
+      margin-top: 25px;
+      font-size: 22px;
+      font-weight: bold;
+      padding: 15px;
+      border-radius: 10px;
+      width: 80%;
+      margin-left: auto;
+      margin-right: auto;
+      display: none;
+    }
+
+    .valid {
+      background: #d4f8d4;
+      color: #1a7f1a;
+      border: 2px solid #1a7f1a;
+    }
+
+    .invalid {
+      background: #ffd4d4;
+      color: #a30000;
+      border: 2px solid #a30000;
+    }
+  </style>
 </head>
+
 <body>
 
-<h2>Scanner un carton</h2>
-<div id="reader" style="width: 300px;"></div>
+<h1>Scanner un carton</h1>
+
+<div id="reader"></div>
+
 <p id="result"></p>
 
 <script>
@@ -21,13 +75,14 @@ function verifier(code) {
   .then(r => r.json())
   .then(data => {
     const res = document.getElementById("result");
+    res.style.display = "block";
 
     if (data.status === "valid") {
-      res.textContent = "✔ Carton authentique";
-      res.style.color = "green";
+      res.textContent = "✔ Carton VALIDE";
+      res.className = "valid";
     } else {
-      res.textContent = "❌ Carton inconnu (non acheté)";
-      res.style.color = "red";
+      res.textContent = "❌ Carton INVALIDE";
+      res.className = "invalid";
     }
   });
 }
@@ -38,3 +93,5 @@ new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 })
 
 </body>
 </html>
+
+
