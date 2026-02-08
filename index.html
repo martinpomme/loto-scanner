@@ -22,9 +22,10 @@
     }
 
     h1 {
-      font-size: 32px;
-      margin-bottom: 40px;
+      font-size: 34px;
+      margin-bottom: 45px;
       color: #222;
+      font-weight: 700;
     }
 
     .btn {
@@ -37,6 +38,12 @@
       border-radius: 12px;
       text-decoration: none;
       color: white;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.15);
     }
 
     .vente {
@@ -54,8 +61,13 @@
 <div class="container">
   <h1>Gestion des cartons</h1>
 
-  <a href="ordinateur.html" class="btn vente">Mode Vente</a>
-  <a href="telephone.html" class="btn controle">Mode Contrôle</a>
+  <a href="https://martinpomme.github.io/loto-scanner/ordi.html" class="btn vente">
+    Mode Vente
+  </a>
+
+  <a href="https://martinpomme.github.io/loto-scanner/téléphone.html" class="btn controle">
+    Mode Contrôle
+  </a>
 </div>
 
 </body>
