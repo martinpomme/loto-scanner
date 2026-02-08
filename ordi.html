@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Enregistrement carton</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
 
   <style>
     body {
@@ -72,6 +73,11 @@
       box-shadow: 0 4px 10px rgba(0,102,255,0.35);
     }
 
+    #scanBtn {
+      margin-top: 10px;
+      background: #0f7a0f;
+    }
+
     #status {
       margin-top: 18px;
       padding: 14px;
@@ -98,8 +104,43 @@
       color: #a30000;
       border: 2px solid #a30000;
     }
+
+    /* Scanner modal */
+    #scannerModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.75);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 999;
+    }
+
+    #reader {
+      width: 90%;
+      max-width: 380px;
+      background: white;
+      padding: 10px;
+      border-radius: 12px;
+    }
+
+    #closeScan {
+      margin-top: 20px;
+      padding: 12px 30px;
+      font-size: 20px;
+      background: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
   </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -109,12 +150,21 @@
   <input type="text" id="code" placeholder="Saisir ou scanner le code barre">
 
   <button onclick="envoyer()">Enregistrer</button>
+  <button id="scanBtn" onclick="openScanner()">Scanner</button>
 
   <div id="status"></div>
 </div>
 
+<!-- Scanner modal -->
+<div id="scannerModal">
+  <div id="reader"></div>
+  <button id="closeScan" onclick="closeScanner()">Fermer</button>
+</div>
+
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbwkDtspgmnRJJM58ujFsI-RJFpGmQsyJ57ue5X856nMrsRVbYYei_qB3bX7TyyZIEfL/exec";
+
+let html5Scanner;
 
 function afficher(message, type) {
   const box = document.getElementById("status");
@@ -159,6 +209,31 @@ function envoyer() {
 document.getElementById("code").addEventListener("keydown", (e) => {
   if (e.key === "Enter") envoyer();
 });
+
+/* Scanner functions */
+function openScanner() {
+  document.getElementById("scannerModal").style.display = "flex";
+
+  html5Scanner = new Html5Qrcode("reader");
+  html5Scanner.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: 250 },
+    (decodedText) => {
+      document.getElementById("code").value = decodedText;
+      closeScanner();
+      envoyer();
+    }
+  );
+}
+
+function closeScanner() {
+  if (html5Scanner) {
+    html5Scanner.stop().then(() => {
+      html5Scanner.clear();
+    });
+  }
+  document.getElementById("scannerModal").style.display = "none";
+}
 </script>
 
 </body>
