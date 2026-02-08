@@ -121,7 +121,7 @@
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbyut5vlo6NFGQ1-82qngTAYm62311uk4FZVUXfXXLmxwJy8guT78sClN3Cb6_FNoHMu/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxzYFFfGcWG8_WYji0FJjNqdlD_7AlHBGV3x_kiH6x9-dFQ4cnqrkz4ij_WN1OLCAT5/exec";
 
 function afficher(message, type) {
   const box = document.getElementById("status");
@@ -145,13 +145,12 @@ function envoyer() {
   })
   .then(r => r.json())
   .then(data => {
-    // On suppose que le script renvoie {status: "new"} ou {status: "exists"}
     if (data.status === "new") {
       afficher("✔ Carton enregistré dans Google Sheets.", "ok");
       navigator.vibrate?.(120);
       input.value = "";
     } else if (data.status === "exists") {
-      afficher("⚠ Ce carton a déjà été saisi, il n’est pas enregistré à nouveau.", "exists");
+      afficher("⚠ Ce carton a déjà été saisi.", "exists");
       navigator.vibrate?.([120, 80, 120]);
     } else {
       afficher("Réponse inattendue du serveur.", "error");
