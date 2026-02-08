@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vérification Carton</title>
+  <title>Scanner un carton</title>
   <script src="https://unpkg.com/html5-qrcode"></script>
 
   <style>
@@ -76,11 +76,9 @@
 <p id="result"></p>
 
 <script>
+const API_URL = "https://script.google.com/macros/s/AKfycbxzYFFfGcWG8_WYji0FJjNqdlD_7AlHBGV3x_kiH6x9-dFQ4cnqrkz4ij_WN1OLCAT5/exec";
 
-// 👉 Mets ici ton URL API quand elle sera prête
-const API = null; 
-
-function afficherResultat(valide) {
+function afficher(valide) {
   const res = document.getElementById("result");
   res.style.display = "block";
 
@@ -98,27 +96,27 @@ function afficherResultat(valide) {
 function verifier(code) {
   document.getElementById("code").textContent = "Code scanné : " + code;
 
-  // 👉 Si pas d’API, on simule :
-  if (!API) {
-    // Exemple : si le code contient "OK", il est valide
-    afficherResultat(code.includes("OK"));
-    return;
-  }
-
-  // 👉 Si API existe, on l’appelle
-  fetch(API, {
+  fetch(API_URL, {
     method: "POST",
     body: JSON.stringify({ code })
   })
   .then(r => r.json())
   .then(data => {
-    afficherResultat(data.status === "valid");
+    if (data.status === "exists") {
+      afficher(true);   // Le code est déjà dans Sheets → VALIDE
+    } else if (data.status === "new") {
+      afficher(false);  // Le code n'est pas dans Sheets → INVALIDE
+    } else {
+      afficher(false);
+    }
+  })
+  .catch(() => {
+    afficher(false);
   });
 }
 
 new Html5QrcodeScanner("reader", { fps: 10, qrbox: 260 })
   .render((decodedText) => verifier(decodedText));
-
 </script>
 
 </body>
