@@ -1,0 +1,25 @@
+<input id="code" placeholder="Scanner le carton">
+<button onclick="save()">Enregistrer</button>
+<p id="msg"></p>
+
+<script>
+const API = "TON_URL_API";
+
+function save() {
+  const code = document.getElementById("code").value;
+
+  fetch(API + "?register=" + code)
+    .then(r => r.text())
+    .then(status => {
+      const msg = document.getElementById("msg");
+
+      if (status === "ok") {
+        msg.textContent = "Carton enregistré";
+        msg.style.color = "green";
+      } else {
+        msg.textContent = "Carton déjà vendu !";
+        msg.style.color = "red";
+      }
+    });
+}
+</script>
