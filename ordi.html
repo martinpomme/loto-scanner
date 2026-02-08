@@ -70,13 +70,6 @@
       background: #0066ff;
       color: white;
       box-shadow: 0 4px 10px rgba(0,102,255,0.35);
-      transition: transform 0.1s, box-shadow 0.1s, background 0.2s;
-    }
-
-    button:active {
-      transform: translateY(1px);
-      box-shadow: 0 2px 6px rgba(0,102,255,0.35);
-      background: #0053d1;
     }
 
     #status {
@@ -121,13 +114,17 @@
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbz3kNQWzWen_CLhQDrPUiX1xUKxA5uHM2UpFRVM50LFUFl7CS7jo_S5_b6Xo2gBCWl9/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwkDtspgmnRJJM58ujFsI-RJFpGmQsyJ57ue5X856nMrsRVbYYei_qB3bX7TyyZIEfL/exec";
 
 function afficher(message, type) {
   const box = document.getElementById("status");
   box.style.display = "block";
   box.textContent = message;
   box.className = type;
+
+  setTimeout(() => {
+    box.style.display = "none";
+  }, 2000);
 }
 
 function envoyer() {
@@ -146,20 +143,22 @@ function envoyer() {
   .then(r => r.json())
   .then(data => {
     if (data.status === "new") {
-      afficher("✔ Carton enregistré dans Google Sheets.", "ok");
-      navigator.vibrate?.(120);
+      afficher("✔ Carton enregistré", "ok");
       input.value = "";
     } else if (data.status === "exists") {
-      afficher("⚠ Ce carton a déjà été saisi.", "exists");
-      navigator.vibrate?.([120, 80, 120]);
+      afficher("⚠ Ce carton a déjà été saisi", "exists");
     } else {
-      afficher("Réponse inattendue du serveur.", "error");
+      afficher("Réponse inattendue du serveur", "error");
     }
   })
   .catch(() => {
-    afficher("Erreur lors de l’envoi vers Google Sheets.", "error");
+    afficher("Erreur lors de l’envoi", "error");
   });
 }
+
+document.getElementById("code").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") envoyer();
+});
 </script>
 
 </body>
