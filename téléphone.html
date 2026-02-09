@@ -15,6 +15,22 @@
       text-align: center;
     }
 
+    /* Bouton menu */
+    #menuBtn {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      background: #d9d9d9;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      color: black;
+      font-size: 16px;
+      z-index: 999;
+    }
+
     #reader {
       width: 92%;
       max-width: 380px;
@@ -24,7 +40,6 @@
       box-shadow: 0 6px 18px rgba(0,0,0,0.15);
     }
 
-    /* Écran résultat */
     #resultScreen {
       position: fixed;
       top: 0;
@@ -50,10 +65,9 @@
       background: #a30000;
     }
 
-    /* Cercle + icône */
     .icon {
       font-size: 150px;
-      border: 4px solid white; /* même épaisseur que l’icône */
+      border: 4px solid white;
       border-radius: 50%;
       width: 220px;
       height: 220px;
@@ -65,7 +79,6 @@
       line-height: 0;
     }
 
-    /* Bouton Scan */
     #scanBtn {
       margin-top: 50px;
       padding: 20px 50px;
@@ -78,7 +91,12 @@
       cursor: pointer;
     }
 
-    /* Sélecteur caméra */
+    /* Désactiver upload */
+    .html5-qrcode-element,
+    .html5-qrcode-button-file-selection {
+      display: none !important;
+    }
+
     .html5-qrcode-select-camera {
       padding: 12px;
       border-radius: 10px;
@@ -94,6 +112,8 @@
 
 <body>
 
+<a id="menuBtn" href="https://martinpomme.github.io/loto-scanner/">Menu</a>
+
 <div id="reader"></div>
 
 <div id="resultScreen">
@@ -107,7 +127,6 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxWKLPf3UrEiuu_fX1PCQgD
 
 let scanner;
 
-/* Affichage résultat */
 function showResult(valide) {
   const screen = document.getElementById("resultScreen");
   const text = document.getElementById("text");
@@ -128,12 +147,10 @@ function showResult(valide) {
   screen.style.display = "flex";
 }
 
-/* Redémarrer */
 function restart() {
   location.reload();
 }
 
-/* Vérification API */
 function verifier(code) {
   fetch(API_URL + "?code=" + encodeURIComponent(code))
     .then(r => r.json())
@@ -145,7 +162,6 @@ function verifier(code) {
     });
 }
 
-/* Scanner */
 scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 260 });
 scanner.render((decodedText) => {
   scanner.clear();
