@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enregistrement carton</title>
+  <title>Gestion des cartons – Vente / Rendu</title>
   <script src="https://unpkg.com/html5-qrcode"></script>
 
   <style>
@@ -35,12 +35,55 @@
       color: #222;
     }
 
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 15px;
-      color: #555;
-      text-align: left;
+    /* Toggle switch */
+    .switch {
+      position: relative;
+      width: 90px;
+      height: 40px;
+      margin: 20px auto;
+    }
+
+    .switch input {
+      display: none;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      background: #0066ff;
+      border-radius: 40px;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      transition: 0.3s;
+    }
+
+    .slider:before {
+      content: "";
+      position: absolute;
+      height: 32px;
+      width: 32px;
+      left: 4px;
+      bottom: 4px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+
+    input:checked + .slider {
+      background: #a30000;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(50px);
+    }
+
+    .modeLabel {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 10px;
+      color: #333;
     }
 
     input[type="text"] {
@@ -51,12 +94,6 @@
       border: 1px solid #ccc;
       box-sizing: border-box;
       outline: none;
-      transition: border 0.2s, box-shadow 0.2s;
-    }
-
-    input[type="text"]:focus {
-      border-color: #0066ff;
-      box-shadow: 0 0 0 2px rgba(0,102,255,0.15);
     }
 
     button {
@@ -70,11 +107,9 @@
       cursor: pointer;
       background: #0066ff;
       color: white;
-      box-shadow: 0 4px 10px rgba(0,102,255,0.35);
     }
 
     #scanBtn {
-      margin-top: 10px;
       background: #0f7a0f;
     }
 
@@ -87,23 +122,10 @@
       display: none;
     }
 
-    .ok {
-      background: #d4f8d4;
-      color: #0f7a0f;
-      border: 2px solid #0f7a0f;
-    }
-
-    .exists {
-      background: #fff3cd;
-      color: #856404;
-      border: 2px solid #856404;
-    }
-
-    .error {
-      background: #ffd4d4;
-      color: #a30000;
-      border: 2px solid #a30000;
-    }
+    .ok { background: #d4f8d4; color: #0f7a0f; border: 2px solid #0f7a0f; }
+    .exists { background: #fff3cd; color: #856404; border: 2px solid #856404; }
+    .deleted { background: #d4f8d4; color: #0f7a0f; border: 2px solid #0f7a0f; }
+    .notfound { background: #ffd4d4; color: #a30000; border: 2px solid #a30000; }
 
     /* Scanner modal */
     #scannerModal {
@@ -144,12 +166,19 @@
 <body>
 
 <div class="container">
-  <h1>Enregistrer un carton</h1>
+  <h1>Gestion des cartons</h1>
+
+  <!-- Toggle Vente / Rendu -->
+  <label class="switch">
+    <input type="checkbox" id="modeToggle">
+    <span class="slider"></span>
+  </label>
+  <div class="modeLabel" id="modeLabel">Mode Vente</div>
 
   <label for="code">Code du carton</label>
   <input type="text" id="code" placeholder="Saisir ou scanner le code barre">
 
-  <button onclick="envoyer()">Enregistrer</button>
+  <button onclick="envoyer()">Valider</button>
   <button id="scanBtn" onclick="openScanner()">Scanner</button>
 
   <div id="status"></div>
@@ -162,9 +191,18 @@
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbwkDtspgmnRJJM58ujFsI-RJFpGmQsyJ57ue5X856nMrsRVbYYei_qB3bX7TyyZIEfL/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwTvey3gpOO-TreIfg0LAtdv4N20xg-OyLT5wXjeFDj4Z_hHCm_I6tlRimRBikIq4A/exec";
 
 let html5Scanner;
+
+function getMode() {
+  return document.getElementById("modeToggle").checked ? "rendu" : "vente";
+}
+
+document.getElementById("modeToggle").addEventListener("change", () => {
+  document.getElementById("modeLabel").textContent =
+    getMode() === "vente" ? "Mode Vente" : "Mode Rendu";
+});
 
 function afficher(message, type) {
   const box = document.getElementById("status");
@@ -180,6 +218,7 @@ function afficher(message, type) {
 function envoyer() {
   const input = document.getElementById("code");
   const code = input.value.trim();
+  const mode = getMode();
 
   if (!code) {
     afficher("Veuillez saisir un code.", "error");
@@ -188,22 +227,19 @@ function envoyer() {
 
   fetch(API_URL, {
     method: "POST",
-    body: JSON.stringify({ code })
+    body: JSON.stringify({ code, mode })
   })
   .then(r => r.json())
   .then(data => {
-    if (data.status === "new") {
-      afficher("✔ Carton enregistré", "ok");
-      input.value = "";
-    } else if (data.status === "exists") {
-      afficher("⚠ Ce carton a déjà été saisi", "exists");
-    } else {
-      afficher("Réponse inattendue du serveur", "error");
-    }
+    if (data.status === "added") afficher("✔ Carton enregistré", "ok");
+    else if (data.status === "exists") afficher("⚠ Déjà saisi", "exists");
+    else if (data.status === "deleted") afficher("✔ Carton rendu", "deleted");
+    else if (data.status === "notfound") afficher("❌ Ce carton n'existe pas", "notfound");
+    else afficher("Erreur serveur", "error");
+
+    input.value = "";
   })
-  .catch(() => {
-    afficher("Erreur lors de l’envoi", "error");
-  });
+  .catch(() => afficher("Erreur réseau", "error"));
 }
 
 document.getElementById("code").addEventListener("keydown", (e) => {
@@ -228,9 +264,7 @@ function openScanner() {
 
 function closeScanner() {
   if (html5Scanner) {
-    html5Scanner.stop().then(() => {
-      html5Scanner.clear();
-    });
+    html5Scanner.stop().then(() => html5Scanner.clear());
   }
   document.getElementById("scannerModal").style.display = "none";
 }
