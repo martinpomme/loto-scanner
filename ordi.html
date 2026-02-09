@@ -18,6 +18,22 @@
       min-height: 100vh;
     }
 
+    /* Bouton menu */
+    #menuBtn {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      background: #d9d9d9;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      color: black;
+      font-size: 16px;
+      z-index: 999;
+    }
+
     .container {
       background: #ffffff;
       padding: 24px 22px 26px;
@@ -35,7 +51,7 @@
       color: #222;
     }
 
-    /* Nouveau toggle */
+    /* Toggle */
     .toggle-wrapper {
       width: 260px;
       margin: 20px auto;
@@ -44,7 +60,7 @@
     .toggle {
       width: 100%;
       height: 55px;
-      background: #0f7a0f; /* Vente */
+      background: #0f7a0f;
       border-radius: 30px;
       position: relative;
       cursor: pointer;
@@ -59,7 +75,7 @@
     }
 
     .toggle.rendu {
-      background: #a30000; /* Rendu */
+      background: #a30000;
     }
 
     .toggle-circle {
@@ -141,6 +157,12 @@
       border-radius: 12px;
     }
 
+    /* Désactiver upload */
+    .html5-qrcode-element,
+    .html5-qrcode-button-file-selection {
+      display: none !important;
+    }
+
     #closeScan {
       margin-top: 20px;
       padding: 12px 30px;
@@ -156,10 +178,11 @@
 
 <body>
 
+<a id="menuBtn" href="https://martinpomme.github.io/loto-scanner/">Menu</a>
+
 <div class="container">
   <h1>Gestion des cartons</h1>
 
-  <!-- Toggle Vente / Rendu -->
   <div class="toggle-wrapper">
     <div id="toggle" class="toggle">
       <div id="toggleText">Vente</div>
@@ -176,7 +199,6 @@
   <div id="status"></div>
 </div>
 
-<!-- Scanner modal -->
 <div id="scannerModal">
   <div id="reader"></div>
   <button id="closeScan" onclick="closeScanner()">Fermer</button>
@@ -188,7 +210,6 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxWKLPf3UrEiuu_fX1PCQgD
 let html5Scanner;
 let mode = "vente";
 
-/* Toggle */
 document.getElementById("toggle").addEventListener("click", () => {
   const t = document.getElementById("toggle");
   const txt = document.getElementById("toggleText");
@@ -240,7 +261,6 @@ document.getElementById("code").addEventListener("keydown", (e) => {
   if (e.key === "Enter") envoyer();
 });
 
-/* Scanner functions */
 function openScanner() {
   document.getElementById("scannerModal").style.display = "flex";
 
