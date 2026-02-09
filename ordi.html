@@ -35,46 +35,46 @@
       color: #222;
     }
 
-    /* Toggle modernisé */
+    /* Nouveau toggle */
     .toggle-wrapper {
-      margin: 20px auto;
       width: 260px;
+      margin: 20px auto;
     }
 
     .toggle {
       width: 100%;
-      height: 50px;
-      background: #0f7a0f;
+      height: 55px;
+      background: #0f7a0f; /* Vente */
       border-radius: 30px;
       position: relative;
       cursor: pointer;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
+      justify-content: center;
       color: white;
       font-weight: bold;
-      font-size: 18px;
+      font-size: 20px;
       transition: 0.3s;
+      user-select: none;
     }
 
-    .toggle.red {
-      background: #a30000;
+    .toggle.rendu {
+      background: #a30000; /* Rendu */
     }
 
     .toggle-circle {
       position: absolute;
-      width: 44px;
-      height: 44px;
+      width: 48px;
+      height: 48px;
       background: white;
       border-radius: 50%;
-      top: 3px;
-      left: 3px;
+      top: 3.5px;
+      left: 4px;
       transition: 0.3s;
     }
 
-    .toggle.red .toggle-circle {
-      transform: translateX(210px);
+    .toggle.rendu .toggle-circle {
+      transform: translateX(208px);
     }
 
     input[type="text"] {
@@ -162,8 +162,7 @@
   <!-- Toggle Vente / Rendu -->
   <div class="toggle-wrapper">
     <div id="toggle" class="toggle">
-      <span>Vente</span>
-      <span>Rendu</span>
+      <div id="toggleText">Vente</div>
       <div class="toggle-circle"></div>
     </div>
   </div>
@@ -192,8 +191,12 @@ let mode = "vente";
 /* Toggle */
 document.getElementById("toggle").addEventListener("click", () => {
   const t = document.getElementById("toggle");
-  t.classList.toggle("red");
-  mode = t.classList.contains("red") ? "rendu" : "vente";
+  const txt = document.getElementById("toggleText");
+
+  t.classList.toggle("rendu");
+  mode = t.classList.contains("rendu") ? "rendu" : "vente";
+
+  txt.textContent = mode === "vente" ? "Vente" : "Rendu";
 });
 
 function afficher(message, type) {
